@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>HTML 5 canvas clock with pure JS</h1>
+<canvas id="canvas" width="250" height="250" style="background-color:#fff">
+</canvas>
+<label>Volume:</label><button id="volume" onclick="audio()">on/off</button>
+
+<script>
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+var radius = canvas.height / 2;
+ctx.translate(radius, radius);
+radius = radius * 0.90
+setInterval(drawClock, 1000);
+var toggle = false;
+
+function drawClock() {
+  drawFace(ctx, radius);
+  drawNumbers(ctx, radius);
+  drawTime(ctx, radius);
+  if(toggle)
+    playAudio();
+}
+
+
+function drawFace(ctx, radius) {
+  var grad;
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, 2*Math.PI);
+  ctx.fillStyle = 'white';
+  ctx.fill();
+  grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05);
+  grad.addColorStop(0, '#78a9d4');
+  grad.addColorStop(0.5, '#0073B7');
+  grad.addColorStop(1, '#78a9d4');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = radius*0.1;
+  ctx.stroke();
+  
+  ctx.beginPath();
+  ctx.arc(0, 0, radius*0.75, 0, 2*Math.PI);
+  ctx.fillStyle = '#efefef';
+  ctx.fill();
+  
+  
+  ctx.beginPath();
+  ctx.arc(0, 0, radius*0.1, 0, 2*Math.PI);
+  ctx.fillStyle = '#787878';
+  ctx.fill();
+  
+}
+
+function drawNumbers(ctx, radius) {
+  
+  var ang;
+  var num;
+  ctx.font = radius*0.15 + "px arial";
+  ctx.textBaseline="middle";
+  ctx.textAlign="center";
+  for(num = 1; num < 13; num++){
+    ang = num * Math.PI / 6;
+    ctx.rotate(ang);
+    ctx.translate(0, -radius*0.85);
+    ctx.rotate(-ang);
+    ctx.fillText(num.toString(), 0, 0);
+    ctx.rotate(ang);
+    ctx.translate(0, radius*0.85);
+    ctx.rotate(-ang);
+  }
+  ctx.fillStyle = '#0075c4';
+  ctx.fill();
+}
+
+function drawTime(ctx, radius){
+	
+    var now = new Date();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    //hour
+    hour=hour%12;
+    hour=(hour*Math.PI/6)+
+    (minute*Math.PI/(6*60))+
+    (second*Math.PI/(360*60));
+    drawHand(ctx, hour, radius*0.6, radius*0.07,"hour");
+    //minute
+    minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
+    drawHand(ctx, minute, radius*0.73, radius*0.07,"minute");
+    // second
+    second=(second*Math.PI/30);
+    drawHand(ctx, second, radius*0.85, radius*0.02,"second");
+}
+
+function drawHand(ctx, pos, length, width,hand) {
+    ctx.beginPath();
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.moveTo(0,0);
+    ctx.rotate(pos);
+    if((hand == "hour") || (hand == "minute")){
+      ctx.lineTo(0, -length);
+      if(hand == "hour")
+      	ctx.strokeStyle="#0075c4"; 
+      else if(hand == "minute")
+      	ctx.strokeStyle="#74aad7"; 
+    } 
+     else{ 
+     ctx.lineTo(-3, -10); // 4 left, 10 up
+     ctx.lineTo(0, -length); // up to 0,-150
+     ctx.lineTo(3,-10); // down to 4 right, 10 up
+     ctx.lineTo(0,0); // back to starting point
+     ctx.strokeStyle="#0063a5"; 
+   }
+ ctx.stroke();
+   ctx.rotate(-pos);
+}
+
+function audio(){
+  toggle = toggle ? false : true;   
+}
+
+function playAudio(){
+    var audio = new Audio("click.mp3");
+    audio.play();
+    audio.volume = 0.4;
+}
+
+</script>
+
+</body>
+</html>
